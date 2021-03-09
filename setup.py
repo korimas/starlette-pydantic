@@ -4,7 +4,7 @@ setup(
     # name=NAME,
     # version=VERSION,
     name='starlette_pydantic',
-    version='0.1',
+    version='0.11',
     author='zpzhou',
     author_email='himoker@163.com',
     url='https://github.com/zpdev/starlette-pydantic',

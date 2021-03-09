@@ -5,6 +5,21 @@ from starlette.concurrency import run_in_threadpool
 from starlette.requests import Request
 from starlette.responses import JSONResponse
 from typing import get_args, get_origin, Union
+from pydantic import BaseModel
+
+
+class FormMeta(type):
+    def __new__(cls, name, bases, attrs):
+        annotations = attrs.get('__annotations__', {})
+        model_cls = type(name + "Model", (BaseModel,), {"__annotations__": annotations})
+        attrs['model_cls'] = model_cls
+        return super().__new__(cls, name, bases, attrs)
+
+
+class BaseForm(metaclass=FormMeta):
+
+    def __init__(self, **kwargs):
+        self.model = self.model_cls(**kwargs)
 
 
 class PydanticEndpoint(HTTPEndpoint):
@@ -22,7 +37,6 @@ class PydanticEndpoint(HTTPEndpoint):
             raise Exception("Parameter valid error")
 
     async def check_parameter(self, handler, request, kwargs):
-        # TODO: 补充场景： 表单提交、文件上传
         for parameter_name, parameter_type in handler.__annotations__.items():
             # 返回值
             if parameter_name == "return":
@@ -35,6 +49,13 @@ class PydanticEndpoint(HTTPEndpoint):
                 else:
                     parameter = await request.json()
                 kwargs['body'] = parameter_type(**parameter)
+                continue
+
+            # Form
+            if parameter_name == 'form':
+                # TODO: 补充场景：文件上传
+                form = await request.form()
+                kwargs['form'] = parameter_type(**form)
                 continue
 
             # Path或Query参数
