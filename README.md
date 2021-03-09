@@ -19,7 +19,6 @@ class ResponseBody(BaseModel):
 
 
 class UserDetail(PydanticEndpoint):
-    tags = ["user detail"]
 
     @staticmethod
     async def get(request, username: str = None, page: Optional[str] = None) -> ResponseBody:
@@ -27,7 +26,6 @@ class UserDetail(PydanticEndpoint):
 
 
 class User(PydanticEndpoint):
-    tags = ["user"]
 
     @staticmethod
     async def post(request, body: RequestBody) -> ResponseBody:
